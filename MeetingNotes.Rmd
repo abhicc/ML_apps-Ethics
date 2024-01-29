@@ -1,0 +1,32 @@
+---
+title: "Meeting Notes"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Monday, January 22
+
+- discussed our goals and courses (topics, students, etc.)
+
+- plan to create apps to address ML topics (bias-variance trade-off)
+
+- activities on data ethics (to be discussed later)
+
+- Abhishek wnated to know about learnR tutorials (to be thought of later)
+
+- activities related to ChatGPT, etc. (to be thought of later), Eric referred to Vimal
+
+
+## Monday, January 29
+
+- created GitHub repo
+
+- discuss basic version of a couple of apps
+
+- HAVE TO FIX the scale on flexibility
+
+- discuss more such apps to address the concept of variance using multiple training datasets (compare linear models with LASSO, splines, etc. using boxplot os parameter estimates, with multiple scatterplots?)
+
