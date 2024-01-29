@@ -1,24 +1,17 @@
 library(tidyverse)
 
 ui <- fluidPage(
+  
   # Application title
   titlePanel("Model Flexibility"),
-  # Sidebar with a numeric input for month
-  fluidRow(
+
+    fluidRow(
     
     column(3,
            selectInput(inputId = "true_model",
                        label = "Select a 'true' model",
                        choices = c("Linear", "Non-linear"),
                        selected = "Linear")),
-    
-    # column(3,
-    #        numericInput(inputId = "sd_value",
-    #                     label = "Input a standard deviation",
-    #                     min = 1,
-    #                     max = 20,
-    #                     value = 10, 
-    #                     step = 1)),
     
     column(3,
            sliderInput(inputId = "epsilon",
@@ -37,16 +30,12 @@ ui <- fluidPage(
                        step = 0.1))
     
   ),
-  # Show a plot of the generated distribution
-  
+
   fluidRow(
     column(4, 
            plotOutput("truePlot")),
     column(4,
            plotOutput("observedPlot"))
-    # ,
-    # column(4, 
-    #        tableOutput("table"))
   )
 )
 
@@ -75,11 +64,7 @@ server <- function(input, output) {
       
       toy_data <- data.frame(inp = x, true_form = fx, response = y)  
     }
-    # else if (input$shape == "Positively Skewed")
-    # {
-    #   val_right <- rsnorm(1000, mean = input$mean_value, sd = input$sd_value, xi = 3)
-    #   df <- data.frame(value = val_right)
-    # }
+
     else 
     {
       set.seed(208)
@@ -125,6 +110,7 @@ server <- function(input, output) {
         theme(legend.title = element_blank()) +
         labs(title = "Comparing two models", y = "y", x = "x")
     }
+    
     else
     {
       ggplot(data = df(), aes(x = inp, y = response)) + 
@@ -143,18 +129,7 @@ server <- function(input, output) {
   
   
   
-  # output$table <- renderTable({
-  #   
-  #   res <- favstats(~ value, data=df())
-  #   ftable <- data.frame(Summary = c("min", "Q1", "median", "Q3", "max", "IQR", "range"),
-  #                        Values = c(round(res$min,3), round(res$Q1,3), round(res$median,3), 
-  #                                   round(res$Q3,3), round(res$max,3), 
-  #                                   round(res$Q3,3) - round(res$Q1,3),
-  #                                   round(res$max,3) - round(res$min,3)))
-  #   
-  #   ftable
-  # })
-  
+
 }
 
 
