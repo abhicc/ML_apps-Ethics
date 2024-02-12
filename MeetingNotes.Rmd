@@ -35,5 +35,19 @@ knitr::opts_chunk$set(echo = TRUE)
 
 
 
-## Monday, January 29
+## Monday, February 12
+
+- scale on flexibility FIXED (on `Flex.R`)
+
+- created a new app demonstrating bias and variance (`Bias_Variance.R`)
+
+- PLANS: demonstrate KNN and single Decision Trees, Eric mentioned adding histograms of residuals, and add LASSO and ridge boxplots of parameter estimates
+
+- two students might be working with Abhishek on these apps during Spring term
+
+- idea about developing lesson plans associated with the apps
+
+- plan to have the apps ready before next Winter term
+
+- will meet next week
 
