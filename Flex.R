@@ -1,4 +1,5 @@
 library(tidyverse)
+library(shiny)
 
 ui <- fluidPage(
   
@@ -25,9 +26,10 @@ ui <- fluidPage(
            sliderInput(inputId = "flex",
                        label = "Select flexibility",
                        min = 0.1,
-                       max = 2,
+                       max = 10,
                        value = 1,
-                       step = 0.1))
+                       step = 0.5,
+                       animate = TRUE))
     
   ),
 
@@ -105,7 +107,7 @@ server <- function(input, output) {
         geom_function(fun = function(x) a+(b*x), aes(color = "true model"), linewidth = 1.5) +
         geom_smooth(method = "lm", se = FALSE, aes(color = "linear model")) +
         # geom_smooth(formula = y ~ sqrt(x) + sin(x), se = FALSE, aes(color = "non-linear model")) +
-        geom_smooth(span = input$flex, se = FALSE, aes(color = "non-linear model")) +
+        geom_smooth(span = 1/input$flex, se = FALSE, aes(color = "non-linear model")) +
         scale_color_manual(values = c("true model" = "red", "linear model" = "blue", "non-linear model" = "green")) +
         theme(legend.title = element_blank()) +
         labs(title = "Comparing two models", y = "y", x = "x")
@@ -118,7 +120,7 @@ server <- function(input, output) {
         geom_function(fun = function(x) a+(b*sqrt(x))+(c*sin(x)), aes(color = "true model"), linewidth = 1.5) +
         geom_smooth(method = "lm", se = FALSE, aes(color = "linear model")) +
         # geom_smooth(formula = y ~ sqrt(x) + sin(x), se = FALSE, aes(color = "non-linear model")) +
-        geom_smooth(span = input$flex, se = FALSE, aes(color = "non-linear model")) +
+        geom_smooth(span = 1/input$flex, se = FALSE, aes(color = "non-linear model")) +
         scale_color_manual(values = c("true model" = "red", "linear model" = "blue", "non-linear model" = "green")) +
         theme(legend.title = element_blank()) +
         labs(title = "Comparing two models", y = "y", x = "x")

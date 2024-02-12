@@ -7,6 +7,8 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+
+
 ## Monday, January 22
 
 - discussed our goals and courses (topics, students, etc.)
@@ -20,6 +22,7 @@ knitr::opts_chunk$set(echo = TRUE)
 - activities related to ChatGPT, etc. (to be thought of later), Eric referred to Vimal
 
 
+
 ## Monday, January 29
 
 - created GitHub repo
@@ -28,5 +31,9 @@ knitr::opts_chunk$set(echo = TRUE)
 
 - HAVE TO FIX the scale on flexibility
 
-- discuss more such apps to address the concept of variance using multiple training datasets (compare linear models with LASSO, splines, etc. using boxplot os parameter estimates, with multiple scatterplots?)
+- discuss more such apps to address the concept of variance using multiple training datasets (compare linear models with LASSO, splines, etc. using boxplot of parameter estimates, with multiple scatterplots?)
+
+
+
+## Monday, January 29
 

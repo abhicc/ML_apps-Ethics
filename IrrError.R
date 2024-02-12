@@ -1,4 +1,5 @@
 library(tidyverse)
+library(shiny)
 
 ui <- fluidPage(
 
@@ -20,7 +21,8 @@ ui <- fluidPage(
                        min = 0,
                        max = 10,
                        value = 1,
-                       step = 0.5))
+                       step = 0.5,
+                       animate = TRUE))
   ),
 
   fluidRow(
