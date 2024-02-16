@@ -45,7 +45,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 - two students might be working with Abhishek on these apps during Spring term
 
-- idea about developing lesson plans associated with the apps
+- idea about developing lesson plans associated with the apps (discussed in THIRD FLC meeting, see Google Drive folder)
 
 - plan to have the apps ready before next Winter term
 
