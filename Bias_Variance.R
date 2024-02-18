@@ -12,7 +12,12 @@ ui <- fluidPage(
            selectInput(inputId = "true_model",
                        label = "Select a 'true' model",
                        choices = c("Linear", "Non-linear"),
-                       selected = "Linear")),
+                       selected = "Linear"),
+           
+           selectInput(inputId = "which_viz",
+                       label = "What type of vizualization would you like to see?",
+                       choices = c("Training Data", "Residual Histograms"),
+                       selected = "Training Data")),
     
     column(3,
            sliderInput(inputId = "epsilon",
@@ -111,221 +116,302 @@ server <- function(input, output) {
     return(toy_data)
   })
   
+  residuals_df <- reactive({
+    resid_df <- data.frame(
+      lm1_resid = resid(lm(response1 ~ inp, data = df())),
+      loess1_resid = resid(loess(response1 ~ inp, data = df(), span = 1/input$flex)),
+      lm2_resid = resid(lm(response2 ~ inp, data = df())),
+      loess2_resid = resid(loess(response1 ~ inp, data = df(), span = 1/input$flex)),
+      lm3_resid = resid(lm(response3 ~ inp, data = df())),
+      loess3_resid = resid(loess(response1 ~ inp, data = df(), span = 1/input$flex)),
+      lm4_resid = resid(lm(response4 ~ inp, data = df())),
+      loess4_resid = resid(loess(response1 ~ inp, data = df(), span = 1/input$flex)),
+      lm5_resid = resid(lm(response5 ~ inp, data = df())),
+      loess5_resid = resid(loess(response1 ~ inp, data = df(), span = 1/input$flex))
+      )
+    return(resid_df)
+  })
+
+  
   
   output$truePlot <- renderPlot({
-    
+
     if(input$true_model == "Linear")
     {
-      ggplot(data = df(), aes(x = inp, y = true_form)) + 
-        geom_point() + 
+      ggplot(data = df(), aes(x = inp, y = true_form)) +
+        geom_point() +
         labs(title = "True relationship without error", y = "f(x)", x = "x") +
         scale_y_continuous(limits = c(15, 40)) +
         scale_x_continuous(limits = c(20, 40))
     }
-    
+
     else
     {
-      ggplot(data = df(), aes(x = inp, y = true_form)) + 
-        geom_point() + 
+      ggplot(data = df(), aes(x = inp, y = true_form)) +
+        geom_point() +
         labs(title = "True relationship without error", y = "f(x)", x = "x") +
         scale_y_continuous(limits = c(3, 13)) +
         scale_x_continuous(limits = c(20, 40))
     }
 
   })
-  
-  
-  
+
+
+
   output$Plot1 <- renderPlot({
-    
-    if(input$true_model == "Linear")
+
+    if(input$which_viz == "Training Data")
     {
-      ggplot(data = df(), aes(x = inp, y = response1)) + 
-        geom_point() +
-        geom_function(fun = function(x) a+(b*x), aes(color = "true model"), linewidth = 1.5, show.legend = FALSE) +
-        geom_smooth(method = "lm", se = FALSE, aes(color = "linear model"), show.legend = FALSE) +
-        # geom_smooth(formula = y ~ sqrt(x) + sin(x), se = FALSE, aes(color = "non-linear model")) +
-        geom_smooth(span = 1/input$flex, se = FALSE, aes(color = "non-linear model"), show.legend = FALSE) +
-        scale_color_manual(values = c("true model" = "red", "linear model" = "blue", "non-linear model" = "green")) +
-        # theme(legend.title = element_blank()) +
-        labs(title = "Training Data 1", y = "y", x = "x") +
-        scale_y_continuous(limits = c(15, 40)) +
-        scale_x_continuous(limits = c(20, 40))
+      if(input$true_model == "Linear")
+      {
+        ggplot(data = df(), aes(x = inp, y = response1)) +
+          geom_point() +
+          geom_function(fun = function(x) a+(b*x), aes(color = "true model"), linewidth = 1.5, show.legend = FALSE) +
+          geom_smooth(method = "lm", se = FALSE, aes(color = "linear model"), show.legend = FALSE) +
+          # geom_smooth(formula = y ~ sqrt(x) + sin(x), se = FALSE, aes(color = "non-linear model")) +
+          geom_smooth(span = 1/input$flex, se = FALSE, aes(color = "non-linear model"), show.legend = FALSE) +
+          scale_color_manual(values = c("true model" = "red", "linear model" = "blue", "non-linear model" = "green")) +
+          # theme(legend.title = element_blank()) +
+          labs(title = "Training Data 1", y = "y", x = "x") +
+          scale_y_continuous(limits = c(15, 40)) +
+          scale_x_continuous(limits = c(20, 40))
+      }
+
+      else
+      {
+        ggplot(data = df(), aes(x = inp, y = response1)) +
+          geom_point() +
+          geom_function(fun = function(x) a+(b*sqrt(x))+(c*sin(x)), aes(color = "true model"), linewidth = 1.5, show.legend = FALSE) +
+          geom_smooth(method = "lm", se = FALSE, aes(color = "linear model"), show.legend = FALSE) +
+          # geom_smooth(formula = y ~ sqrt(x) + sin(x), se = FALSE, aes(color = "non-linear model")) +
+          geom_smooth(span = 1/input$flex, se = FALSE, aes(color = "non-linear model"), show.legend = FALSE) +
+          scale_color_manual(values = c("true model" = "red", "linear model" = "blue", "non-linear model" = "green")) +
+          # theme(legend.title = element_blank()) +
+          labs(title = "Training Data 1", y = "y", x = "x") +
+          scale_y_continuous(limits = c(3, 13)) +
+          scale_x_continuous(limits = c(20, 40))
+      }
     }
-    
     else
     {
-      ggplot(data = df(), aes(x = inp, y = response1)) + 
-        geom_point() +
-        geom_function(fun = function(x) a+(b*sqrt(x))+(c*sin(x)), aes(color = "true model"), linewidth = 1.5, show.legend = FALSE) +
-        geom_smooth(method = "lm", se = FALSE, aes(color = "linear model"), show.legend = FALSE) +
-        # geom_smooth(formula = y ~ sqrt(x) + sin(x), se = FALSE, aes(color = "non-linear model")) +
-        geom_smooth(span = 1/input$flex, se = FALSE, aes(color = "non-linear model"), show.legend = FALSE) +
-        scale_color_manual(values = c("true model" = "red", "linear model" = "blue", "non-linear model" = "green")) +
-        # theme(legend.title = element_blank()) +
-        labs(title = "Training Data 1", y = "y", x = "x") +
-        scale_y_continuous(limits = c(3, 13)) +
-        scale_x_continuous(limits = c(20, 40))
+      ggplot(data = residuals_df()) +
+        geom_histogram(aes(x = lm1_resid), alpha = 0.5, bins = 7, fill = "blue") +
+        geom_histogram(aes(x= loess1_resid), alpha = 0.5, bins = 7, fill = "green") +
+        geom_vline(xintercept = mean(residuals_df()$lm1_resid), color = "blue") +
+        geom_vline(xintercept = mean(residuals_df()$loess1_resid), color = "green") +
+        geom_vline(xintercept = 0, color = "red")
     }
     
+
   })
-  
+
 
 
   output$Plot2 <- renderPlot({
-    
-    if(input$true_model == "Linear")
+    if(input$which_viz == "Training Data")
     {
-      ggplot(data = df(), aes(x = inp, y = response2)) + 
-        geom_point() +
-        geom_function(fun = function(x) a+(b*x), aes(color = "true model"), linewidth = 1.5, show.legend = FALSE) +
-        geom_smooth(method = "lm", se = FALSE, aes(color = "linear model"), show.legend = FALSE) +
-        # geom_smooth(formula = y ~ sqrt(x) + sin(x), se = FALSE, aes(color = "non-linear model")) +
-        geom_smooth(span = 1/input$flex, se = FALSE, aes(color = "non-linear model"), show.legend = FALSE) +
-        scale_color_manual(values = c("true model" = "red", "linear model" = "blue", "non-linear model" = "green")) +
-        # theme(legend.title = element_blank()) +
-        labs(title = "Training Data 2", y = "y", x = "x") +
-        scale_y_continuous(limits = c(15, 40)) +
-        scale_x_continuous(limits = c(20, 40))
+      if(input$true_model == "Linear")
+      {
+        ggplot(data = df(), aes(x = inp, y = response2)) +
+          geom_point() +
+          geom_function(fun = function(x) a+(b*x), aes(color = "true model"), linewidth = 1.5, show.legend = FALSE) +
+          geom_smooth(method = "lm", se = FALSE, aes(color = "linear model"), show.legend = FALSE) +
+          # geom_smooth(formula = y ~ sqrt(x) + sin(x), se = FALSE, aes(color = "non-linear model")) +
+          geom_smooth(span = 1/input$flex, se = FALSE, aes(color = "non-linear model"), show.legend = FALSE) +
+          scale_color_manual(values = c("true model" = "red", "linear model" = "blue", "non-linear model" = "green")) +
+          # theme(legend.title = element_blank()) +
+          labs(title = "Training Data 2", y = "y", x = "x") +
+          scale_y_continuous(limits = c(15, 40)) +
+          scale_x_continuous(limits = c(20, 40))
+      }
+      
+      else
+      {
+        ggplot(data = df(), aes(x = inp, y = response2)) +
+          geom_point() +
+          geom_function(fun = function(x) a+(b*sqrt(x))+(c*sin(x)), aes(color = "true model"), linewidth = 1.5, show.legend = FALSE) +
+          geom_smooth(method = "lm", se = FALSE, aes(color = "linear model"), show.legend = FALSE) +
+          # geom_smooth(formula = y ~ sqrt(x) + sin(x), se = FALSE, aes(color = "non-linear model")) +
+          geom_smooth(span = 1/input$flex, se = FALSE, aes(color = "non-linear model"), show.legend = FALSE) +
+          scale_color_manual(values = c("true model" = "red", "linear model" = "blue", "non-linear model" = "green")) +
+          # theme(legend.title = element_blank()) +
+          labs(title = "Training Data 2", y = "y", x = "x") +
+          scale_y_continuous(limits = c(3, 13)) +
+          scale_x_continuous(limits = c(20, 40))
+      }
     }
-    
     else
     {
-      ggplot(data = df(), aes(x = inp, y = response2)) + 
-        geom_point() +
-        geom_function(fun = function(x) a+(b*sqrt(x))+(c*sin(x)), aes(color = "true model"), linewidth = 1.5, show.legend = FALSE) +
-        geom_smooth(method = "lm", se = FALSE, aes(color = "linear model"), show.legend = FALSE) +
-        # geom_smooth(formula = y ~ sqrt(x) + sin(x), se = FALSE, aes(color = "non-linear model")) +
-        geom_smooth(span = 1/input$flex, se = FALSE, aes(color = "non-linear model"), show.legend = FALSE) +
-        scale_color_manual(values = c("true model" = "red", "linear model" = "blue", "non-linear model" = "green")) +
-        # theme(legend.title = element_blank()) +
-        labs(title = "Training Data 2", y = "y", x = "x") +
-        scale_y_continuous(limits = c(3, 13)) +
-        scale_x_continuous(limits = c(20, 40))
+      ggplot(data = residuals_df()) +
+        geom_histogram(aes(x = lm2_resid), alpha = 0.5, bins = 7, fill = "blue") +
+        geom_histogram(aes(x= loess2_resid), alpha = 0.5, bins = 7, fill = "green") +
+        geom_vline(xintercept = mean(residuals_df()$lm1_resid), color = "blue") +
+        geom_vline(xintercept = mean(residuals_df()$loess1_resid), color = "green") +
+        geom_vline(xintercept = 0, color = "red")
     }
     
+
   })
 
-  
-  
+
+
   output$Plot3 <- renderPlot({
-    
-    if(input$true_model == "Linear")
+    if(input$which_viz == "Training Data")
     {
-      ggplot(data = df(), aes(x = inp, y = response3)) + 
-        geom_point() +
-        geom_function(fun = function(x) a+(b*x), aes(color = "true model"), linewidth = 1.5, show.legend = FALSE) +
-        geom_smooth(method = "lm", se = FALSE, aes(color = "linear model"), show.legend = FALSE) +
-        # geom_smooth(formula = y ~ sqrt(x) + sin(x), se = FALSE, aes(color = "non-linear model")) +
-        geom_smooth(span = 1/input$flex, se = FALSE, aes(color = "non-linear model"), show.legend = FALSE) +
-        scale_color_manual(values = c("true model" = "red", "linear model" = "blue", "non-linear model" = "green")) +
-        # theme(legend.title = element_blank()) +
-        labs(title = "Training Data 3", y = "y", x = "x") +
-        scale_y_continuous(limits = c(15, 40)) +
-        scale_x_continuous(limits = c(20, 40))
+      if(input$true_model == "Linear")
+      {
+        ggplot(data = df(), aes(x = inp, y = response3)) +
+          geom_point() +
+          geom_function(fun = function(x) a+(b*x), aes(color = "true model"), linewidth = 1.5, show.legend = FALSE) +
+          geom_smooth(method = "lm", se = FALSE, aes(color = "linear model"), show.legend = FALSE) +
+          # geom_smooth(formula = y ~ sqrt(x) + sin(x), se = FALSE, aes(color = "non-linear model")) +
+          geom_smooth(span = 1/input$flex, se = FALSE, aes(color = "non-linear model"), show.legend = FALSE) +
+          scale_color_manual(values = c("true model" = "red", "linear model" = "blue", "non-linear model" = "green")) +
+          # theme(legend.title = element_blank()) +
+          labs(title = "Training Data 3", y = "y", x = "x") +
+          scale_y_continuous(limits = c(15, 40)) +
+          scale_x_continuous(limits = c(20, 40))
+      }
+      
+      else
+      {
+        ggplot(data = df(), aes(x = inp, y = response3)) +
+          geom_point() +
+          geom_function(fun = function(x) a+(b*sqrt(x))+(c*sin(x)), aes(color = "true model"), linewidth = 1.5, show.legend = FALSE) +
+          geom_smooth(method = "lm", se = FALSE, aes(color = "linear model"), show.legend = FALSE) +
+          # geom_smooth(formula = y ~ sqrt(x) + sin(x), se = FALSE, aes(color = "non-linear model")) +
+          geom_smooth(span = 1/input$flex, se = FALSE, aes(color = "non-linear model"), show.legend = FALSE) +
+          scale_color_manual(values = c("true model" = "red", "linear model" = "blue", "non-linear model" = "green")) +
+          # theme(legend.title = element_blank()) +
+          labs(title = "Training Data 3", y = "y", x = "x") +
+          scale_y_continuous(limits = c(3, 13)) +
+          scale_x_continuous(limits = c(20, 40))
+      }
     }
-    
     else
     {
-      ggplot(data = df(), aes(x = inp, y = response3)) + 
-        geom_point() +
-        geom_function(fun = function(x) a+(b*sqrt(x))+(c*sin(x)), aes(color = "true model"), linewidth = 1.5, show.legend = FALSE) +
-        geom_smooth(method = "lm", se = FALSE, aes(color = "linear model"), show.legend = FALSE) +
-        # geom_smooth(formula = y ~ sqrt(x) + sin(x), se = FALSE, aes(color = "non-linear model")) +
-        geom_smooth(span = 1/input$flex, se = FALSE, aes(color = "non-linear model"), show.legend = FALSE) +
-        scale_color_manual(values = c("true model" = "red", "linear model" = "blue", "non-linear model" = "green")) +
-        # theme(legend.title = element_blank()) +
-        labs(title = "Training Data 3", y = "y", x = "x") +
-        scale_y_continuous(limits = c(3, 13)) +
-        scale_x_continuous(limits = c(20, 40))
+      ggplot(data = residuals_df()) +
+        geom_histogram(aes(x = lm3_resid), alpha = 0.5, bins = 7, fill = "blue") +
+        geom_histogram(aes(x= loess3_resid), alpha = 0.5, bins = 7, fill = "green") +
+        geom_vline(xintercept = mean(residuals_df()$lm1_resid), color = "blue") +
+        geom_vline(xintercept = mean(residuals_df()$loess1_resid), color = "green") +
+        geom_vline(xintercept = 0, color = "red")
     }
     
+
   })
 
-  
-  
+
+
   output$Plot4 <- renderPlot({
-    
-    if(input$true_model == "Linear")
+    if(input$which_viz == "Training Data")
     {
-      ggplot(data = df(), aes(x = inp, y = response4)) + 
-        geom_point() +
-        geom_function(fun = function(x) a+(b*x), aes(color = "true model"), linewidth = 1.5, show.legend = FALSE) +
-        geom_smooth(method = "lm", se = FALSE, aes(color = "linear model"), show.legend = FALSE) +
-        # geom_smooth(formula = y ~ sqrt(x) + sin(x), se = FALSE, aes(color = "non-linear model")) +
-        geom_smooth(span = 1/input$flex, se = FALSE, aes(color = "non-linear model"), show.legend = FALSE) +
-        scale_color_manual(values = c("true model" = "red", "linear model" = "blue", "non-linear model" = "green")) +
-        # theme(legend.title = element_blank()) +
-        labs(title = "Training Data 4", y = "y", x = "x") +
-        scale_y_continuous(limits = c(15, 40)) +
-        scale_x_continuous(limits = c(20, 40))
+      if(input$true_model == "Linear")
+      {
+        ggplot(data = df(), aes(x = inp, y = response4)) +
+          geom_point() +
+          geom_function(fun = function(x) a+(b*x), aes(color = "true model"), linewidth = 1.5, show.legend = FALSE) +
+          geom_smooth(method = "lm", se = FALSE, aes(color = "linear model"), show.legend = FALSE) +
+          # geom_smooth(formula = y ~ sqrt(x) + sin(x), se = FALSE, aes(color = "non-linear model")) +
+          geom_smooth(span = 1/input$flex, se = FALSE, aes(color = "non-linear model"), show.legend = FALSE) +
+          scale_color_manual(values = c("true model" = "red", "linear model" = "blue", "non-linear model" = "green")) +
+          # theme(legend.title = element_blank()) +
+          labs(title = "Training Data 4", y = "y", x = "x") +
+          scale_y_continuous(limits = c(15, 40)) +
+          scale_x_continuous(limits = c(20, 40))
+      }
+  
+      else
+      {
+        ggplot(data = df(), aes(x = inp, y = response4)) +
+          geom_point() +
+          geom_function(fun = function(x) a+(b*sqrt(x))+(c*sin(x)), aes(color = "true model"), linewidth = 1.5, show.legend = FALSE) +
+          geom_smooth(method = "lm", se = FALSE, aes(color = "linear model"), show.legend = FALSE) +
+          # geom_smooth(formula = y ~ sqrt(x) + sin(x), se = FALSE, aes(color = "non-linear model")) +
+          geom_smooth(span = 1/input$flex, se = FALSE, aes(color = "non-linear model"), show.legend = FALSE) +
+          scale_color_manual(values = c("true model" = "red", "linear model" = "blue", "non-linear model" = "green")) +
+          # theme(legend.title = element_blank()) +
+          labs(title = "Training Data 4", y = "y", x = "x") +
+          scale_y_continuous(limits = c(3, 13)) +
+          scale_x_continuous(limits = c(20, 40))
+      }
     }
-    
     else
     {
-      ggplot(data = df(), aes(x = inp, y = response4)) + 
-        geom_point() +
-        geom_function(fun = function(x) a+(b*sqrt(x))+(c*sin(x)), aes(color = "true model"), linewidth = 1.5, show.legend = FALSE) +
-        geom_smooth(method = "lm", se = FALSE, aes(color = "linear model"), show.legend = FALSE) +
-        # geom_smooth(formula = y ~ sqrt(x) + sin(x), se = FALSE, aes(color = "non-linear model")) +
-        geom_smooth(span = 1/input$flex, se = FALSE, aes(color = "non-linear model"), show.legend = FALSE) +
-        scale_color_manual(values = c("true model" = "red", "linear model" = "blue", "non-linear model" = "green")) +
-        # theme(legend.title = element_blank()) +
-        labs(title = "Training Data 4", y = "y", x = "x") +
-        scale_y_continuous(limits = c(3, 13)) +
-        scale_x_continuous(limits = c(20, 40))
+      ggplot(data = residuals_df()) +
+        geom_histogram(aes(x = lm4_resid), alpha = 0.5, bins = 7, fill = "blue") +
+        geom_histogram(aes(x= loess4_resid), alpha = 0.5, bins = 7, fill = "green") +
+        geom_vline(xintercept = mean(residuals_df()$lm1_resid), color = "blue") +
+        geom_vline(xintercept = mean(residuals_df()$loess1_resid), color = "green") +
+        geom_vline(xintercept = 0, color = "red")
     }
     
+    
+
   })
 
-  
-  
+
+
   output$Plot5 <- renderPlot({
-    
-    if(input$true_model == "Linear")
+    if(input$which_viz == "Training Data")
     {
-      ggplot(data = df(), aes(x = inp, y = response5)) + 
-        geom_point() +
-        geom_function(fun = function(x) a+(b*x), aes(color = "true model"), linewidth = 1.5, show.legend = FALSE) +
-        geom_smooth(method = "lm", se = FALSE, aes(color = "linear model"), show.legend = FALSE) +
-        # geom_smooth(formula = y ~ sqrt(x) + sin(x), se = FALSE, aes(color = "non-linear model")) +
-        geom_smooth(span = 1/input$flex, se = FALSE, aes(color = "non-linear model"), show.legend = FALSE) +
-        scale_color_manual(values = c("true model" = "red", "linear model" = "blue", "non-linear model" = "green")) +
-        # theme(legend.title = element_blank()) +
-        labs(title = "Training Data 5", y = "y", x = "x") +
-        scale_y_continuous(limits = c(15, 40)) +
-        scale_x_continuous(limits = c(20, 40))
+      if(input$true_model == "Linear")
+      {
+        ggplot(data = df(), aes(x = inp, y = response5)) +
+          geom_point() +
+          geom_function(fun = function(x) a+(b*x), aes(color = "true model"), linewidth = 1.5, show.legend = FALSE) +
+          geom_smooth(method = "lm", se = FALSE, aes(color = "linear model"), show.legend = FALSE) +
+          # geom_smooth(formula = y ~ sqrt(x) + sin(x), se = FALSE, aes(color = "non-linear model")) +
+          geom_smooth(span = 1/input$flex, se = FALSE, aes(color = "non-linear model"), show.legend = FALSE) +
+          scale_color_manual(values = c("true model" = "red", "linear model" = "blue", "non-linear model" = "green")) +
+          # theme(legend.title = element_blank()) +
+          labs(title = "Training Data 5", y = "y", x = "x") +
+          scale_y_continuous(limits = c(15, 40)) +
+          scale_x_continuous(limits = c(20, 40))
+      }
+  
+      else
+      {
+        ggplot(data = df(), aes(x = inp, y = response5)) +
+          geom_point() +
+          geom_function(fun = function(x) a+(b*sqrt(x))+(c*sin(x)), aes(color = "true model"), linewidth = 1.5, show.legend = FALSE) +
+          geom_smooth(method = "lm", se = FALSE, aes(color = "linear model"), show.legend = FALSE) +
+          # geom_smooth(formula = y ~ sqrt(x) + sin(x), se = FALSE, aes(color = "non-linear model")) +
+          geom_smooth(span = 1/input$flex, se = FALSE, aes(color = "non-linear model"), show.legend = FALSE) +
+          scale_color_manual(values = c("true model" = "red", "linear model" = "blue", "non-linear model" = "green")) +
+          # theme(legend.title = element_blank()) +
+          labs(title = "Training Data 5", y = "y", x = "x") +
+          scale_y_continuous(limits = c(3, 13)) +
+          scale_x_continuous(limits = c(20, 40))
+      }
     }
-    
     else
     {
-      ggplot(data = df(), aes(x = inp, y = response5)) + 
-        geom_point() +
-        geom_function(fun = function(x) a+(b*sqrt(x))+(c*sin(x)), aes(color = "true model"), linewidth = 1.5, show.legend = FALSE) +
-        geom_smooth(method = "lm", se = FALSE, aes(color = "linear model"), show.legend = FALSE) +
-        # geom_smooth(formula = y ~ sqrt(x) + sin(x), se = FALSE, aes(color = "non-linear model")) +
-        geom_smooth(span = 1/input$flex, se = FALSE, aes(color = "non-linear model"), show.legend = FALSE) +
-        scale_color_manual(values = c("true model" = "red", "linear model" = "blue", "non-linear model" = "green")) +
-        # theme(legend.title = element_blank()) +
-        labs(title = "Training Data 5", y = "y", x = "x") +
-        scale_y_continuous(limits = c(3, 13)) +
-        scale_x_continuous(limits = c(20, 40))
+      ggplot(data = residuals_df()) +
+        geom_histogram(aes(x = lm5_resid), alpha = 0.5, bins = 7, fill = "blue") +
+        geom_histogram(aes(x= loess5_resid), alpha = 0.5, bins = 7, fill = "green") +
+        geom_vline(xintercept = mean(residuals_df()$lm1_resid), color = "blue") +
+        geom_vline(xintercept = mean(residuals_df()$loess1_resid), color = "green") +
+        geom_vline(xintercept = 0, color = "red")
     }
     
+
   })
-  
-  
-  
+
+
+
   output$myLegend <- renderPlot({
     par(mai=rep(0.01,4))
     # plot(NULL ,xaxt='n',yaxt='n',bty='n',ylab='',xlab='', xlim=c(0,.1), ylim=c(0,.1))
     legend("center", legend=c("true model","linear model", "non-linear model"), lty=c(1,1,1), lwd=c(4,4,4), col=c("red", "darkblue", "green"))
   },height=50)
-  
 
-  
-  
+
+
+
 }
+
+
 
 
 # Run the application
