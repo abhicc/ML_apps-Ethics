@@ -51,3 +51,40 @@ knitr::opts_chunk$set(echo = TRUE)
 
 - will meet next week
 
+
+
+## Monday, February 19
+
+- Abhishek did not have time to work on the apps
+
+- Eric updated the bias-variance app with histograms (at a different branch)
+
+- We discussed of possible variations - hollow histograms, density plots, etc. (TO DO)
+
+- We talked about `Default` dataset from Intro to Stat Learning with R (James et al.) for first version of algorithmic bias study
+
+- We talked about similar apps for Stat 2 level course developed by Keegan Kang (last FLC meeting)
+
+- Found a similar app which can be used for reference (check assoicated article, and apps) [gursimar.github.io/d3-visualizations/bias-var/] 
+
+- TO DO for Eric 
+
+  - Put ML activities in GitHub folder and send to Abhishek 
+  
+  - Reach out to Colby at Wooster
+  
+  - Frame an idea of algorithmic bias
+  
+- TO DO for Abhishek
+
+  - work on apps for KNN and trees 
+  
+  
+  
+  
+## Monday, February 26
+
+- Busy week/weekend for both of us, none of us could make any progress
+
+- Will work on the TO DO lists from last meeting
+
