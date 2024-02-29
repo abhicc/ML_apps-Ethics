@@ -16,7 +16,7 @@ ui <- fluidPage(
            
            selectInput(inputId = "which_viz",
                        label = "What type of vizualization would you like to see?",
-                       choices = c("Training Data", "Residual Histograms"),
+                       choices = c("Training Data", "Residual Histograms", "Residual Freq Polygon", "Residual Density"),
                        selected = "Training Data")),
     
     column(3,
@@ -139,12 +139,7 @@ server <- function(input, output) {
     }
     else
     {
-      ggplot(data = residuals_df()) +
-        geom_histogram(aes(x = lm1_resid), alpha = 0.5, bins = 7, fill = "blue") +
-        geom_histogram(aes(x= loess1_resid), alpha = 0.5, bins = 7, fill = "green") +
-        geom_vline(xintercept = mean(residuals_df()$lm1_resid), color = "blue") +
-        geom_vline(xintercept = mean(residuals_df()$loess1_resid), color = "green") +
-        geom_vline(xintercept = 0, color = "red")
+      plotHists(residuals_df(), lm1_resid, loess1_resid, plottype = input$which_viz)
     }
     
 
@@ -159,12 +154,7 @@ server <- function(input, output) {
     }
     else
     {
-      ggplot(data = residuals_df()) +
-        geom_histogram(aes(x = lm2_resid), alpha = 0.5, bins = 7, fill = "blue") +
-        geom_histogram(aes(x= loess2_resid), alpha = 0.5, bins = 7, fill = "green") +
-        geom_vline(xintercept = mean(residuals_df()$lm1_resid), color = "blue") +
-        geom_vline(xintercept = mean(residuals_df()$loess1_resid), color = "green") +
-        geom_vline(xintercept = 0, color = "red")
+      plotHists(residuals_df(), lm2_resid, loess2_resid, plottype = input$which_viz)
     }
     
 
@@ -179,12 +169,7 @@ server <- function(input, output) {
     }
     else
     {
-      ggplot(data = residuals_df()) +
-        geom_histogram(aes(x = lm3_resid), alpha = 0.5, bins = 7, fill = "blue") +
-        geom_histogram(aes(x= loess3_resid), alpha = 0.5, bins = 7, fill = "green") +
-        geom_vline(xintercept = mean(residuals_df()$lm1_resid), color = "blue") +
-        geom_vline(xintercept = mean(residuals_df()$loess1_resid), color = "green") +
-        geom_vline(xintercept = 0, color = "red")
+      plotHists(residuals_df(), lm3_resid, loess3_resid, plottype = input$which_viz)
     }
     
 
@@ -199,12 +184,7 @@ server <- function(input, output) {
     }
     else
     {
-      ggplot(data = residuals_df()) +
-        geom_histogram(aes(x = lm4_resid), alpha = 0.5, bins = 7, fill = "blue") +
-        geom_histogram(aes(x= loess4_resid), alpha = 0.5, bins = 7, fill = "green") +
-        geom_vline(xintercept = mean(residuals_df()$lm1_resid), color = "blue") +
-        geom_vline(xintercept = mean(residuals_df()$loess1_resid), color = "green") +
-        geom_vline(xintercept = 0, color = "red")
+      plotHists(residuals_df(), lm4_resid, loess4_resid, plottype = input$which_viz)
     }
     
     
@@ -220,12 +200,7 @@ server <- function(input, output) {
     }
     else
     {
-      ggplot(data = residuals_df()) +
-        geom_histogram(aes(x = lm5_resid), alpha = 0.5, bins = 7, fill = "blue") +
-        geom_histogram(aes(x= loess5_resid), alpha = 0.5, bins = 7, fill = "green") +
-        geom_vline(xintercept = mean(residuals_df()$lm1_resid), color = "blue") +
-        geom_vline(xintercept = mean(residuals_df()$loess1_resid), color = "green") +
-        geom_vline(xintercept = 0, color = "red")
+      plotHists(residuals_df(), lm5_resid, loess5_resid, plottype = input$which_viz)
     }
     
 
@@ -258,7 +233,30 @@ plotFits <- function(df, flex, trueFunc, whichVar){
   scale_x_continuous(limits = c(20, 40))
 }
 
-
+plotHists <- function(residuals_df, whichresidlm, whichresidloess, plottype = "Residual Histograms"){
+  histplot <- ggplot(data = residuals_df)
+    if(plottype == "Residual Freq Polygon"){
+      histplot <- histplot +
+        geom_freqpoly(aes(x = !!enquo(whichresidlm)), alpha = 0.5, bins = 7, color = "blue") +
+        geom_freqpoly(aes(x= !!enquo(whichresidloess)), alpha = 0.5, bins = 7, color = "green")
+    }
+    else if(plottype == "Residual Density")
+    {
+      histplot <- histplot +
+        geom_density(aes(x = !!enquo(whichresidlm)), alpha = 0.5, fill = "blue") +
+        geom_density(aes(x= !!enquo(whichresidloess)), alpha = 0.5, fill = "green")
+    }
+  else{
+    histplot <- histplot +
+      geom_histogram(aes(x = !!enquo(whichresidlm)), alpha = 0.5, bins = 7, fill = "blue") +
+      geom_histogram(aes(x= !!enquo(whichresidloess)), alpha = 0.5, bins = 7, fill = "green")
+  }
+    
+    histplot +
+      geom_vline(xintercept = mean(select(residuals_df, !!enquo(whichresidloess))), color = "blue") +
+      geom_vline(xintercept = mean(select(residuals_df, !!enquo(whichresidloess))), color = "green") +
+      geom_vline(xintercept = 0, color = "red")
+}
 
 
 # Run the application
