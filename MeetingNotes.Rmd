@@ -17,7 +17,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 - activities on data ethics (to be discussed later)
 
-- Abhishek wnated to know about learnR tutorials (to be thought of later)
+- Abhishek wanted to know about learnR tutorials (to be thought of later)
 
 - activities related to ChatGPT, etc. (to be thought of later), Eric referred to Vimal
 
@@ -59,13 +59,13 @@ knitr::opts_chunk$set(echo = TRUE)
 
 - Eric updated the bias-variance app with histograms (at a different branch)
 
-- We discussed of possible variations - hollow histograms, density plots, etc. (TO DO)
+- We discussed possible variations - hollow histograms, density plots, etc. (TO DO)
 
 - We talked about `Default` dataset from Intro to Stat Learning with R (James et al.) for first version of algorithmic bias study
 
 - We talked about similar apps for Stat 2 level course developed by Keegan Kang (last FLC meeting)
 
-- Found a similar app which can be used for reference (check assoicated article, and apps) [gursimar.github.io/d3-visualizations/bias-var/] 
+- Found a similar app which can be used for reference (check associated article, and apps) [gursimar.github.io/d3-visualizations/bias-var/] 
 
 - TO DO for Eric 
 
@@ -87,4 +87,22 @@ knitr::opts_chunk$set(echo = TRUE)
 - Busy week/weekend for both of us, none of us could make any progress
 
 - Will work on the TO DO lists from last meeting
+
+
+
+## Monday, March 4
+
+- Eric shared labs/activities on ML topics
+
+- Eric has added more features to the bias-variance app
+
+- Abhishek has a first basic version of KNN app, things to add - bias-variance plot, option for students to choose a different dataset, option to see a linear model, KNN classifier, etc. 
+
+- TO DO for Abhishek - app with motivating ensemble trees
+
+- discussed some initial ideas about algorithmic bias app - can we develop an app where students could set parameters and generate/download a dataset?
+
+- next meeting in two weeks
+
+
 
