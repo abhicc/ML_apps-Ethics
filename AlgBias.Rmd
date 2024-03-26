@@ -1,0 +1,186 @@
+---
+title: "Algorithmic Bias Outline"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+
+old_gotham_daily_major_crime_rate <- 100/100000/365
+new_gotham_daily_major_crime_rate <- 10/100000/365
+
+old_gotham_daily_nuisance_crime_rate <- 1000/100000/365
+new_gotham_daily_nuisance_crime_rate <- 500/100000/365
+
+black_arrest_rate_nuisance <- 
+
+
+og_black_pop <- 1000000
+og_latino_pop <- 500000
+og_white_pop <- 200000
+
+ng_black_pop <- 200000
+ng_latino_pop <- 500000
+ng_white_pop <- 1000000
+```
+
+
+# Introduction
+
+Batman is sick of the growing level of crime in Gotham. Instead of patrolling the city himself, he has decided to devote her considerable resources to hiring a team of data scientists. This team of data scientists is directed to use the growing database of arrests to develop a model predicting where crime will occur. The hope is that Gotham will then be able to more efficiently deploy their limited police force. For the sake of simplicity, the data science team decides to divide the city into its six boroughs: in: Old Gotham, Miagani Island, Founders' Island, Bleake Island, Arkham Island, New Gotham. 
+
+For the sake of simplicity, assume the Gotham devides their crimes into two classes. The first class, major crimes, includes most violent crimes (e.g. murder and armed robbery), and are likely to be reported even if a police officer is not present. The second class is called nuisance crimes and includes the type of crimes which are rarely reported like drug possession, vagrancy, and public urination.
+
+## Generating List of Arrests (Not visible to user)
+
+Let simulate a list of arrests
+
+```{r}
+
+generate_crimes <- function(crime_rate, population, time){
+  return(rpois(1, crime_rate*population*time))
+}
+
+# Old Gotham Major Crimes
+og_black_major <- generate_crimes(old_gotham_daily_major_crime_rate,
+                                  og_black_pop,
+                                  365)
+og_latino_major <- generate_crimes(old_gotham_daily_major_crime_rate,
+                                  og_latino_pop,
+                                  365)
+og_white_major <- generate_crimes(old_gotham_daily_major_crime_rate,
+                                  og_white_pop,
+                                  365)
+
+# New Gotham Major Crimes
+ng_black_major <- generate_crimes(new_gotham_daily_major_crime_rate,
+                                  ng_black_pop,
+                                  365)
+ng_latino_major <- generate_crimes(new_gotham_daily_major_crime_rate,
+                                  ng_latino_pop,
+                                  365)
+ng_white_major <- generate_crimes(new_gotham_daily_major_crime_rate,
+                                  ng_white_pop,
+                                  365)
+
+# Old Gotham Nuisance
+og_black_nuisance <- generate_crimes(old_gotham_daily_nuisance_crime_rate,
+                                  og_black_pop,
+                                  365)
+og_latino_nuisance <- generate_crimes(old_gotham_daily_nuisance_crime_rate,
+                                  og_latino_pop,
+                                  365)
+og_white_nuisance <- generate_crimes(old_gotham_daily_nuisance_crime_rate,
+                                  og_white_pop,
+                                  365)
+
+# New Gotham Nuisance
+ng_black_nuisance <- generate_crimes(new_gotham_daily_nuisance_crime_rate,
+                                  ng_black_pop,
+                                  365)
+ng_latino_nuisance <- generate_crimes(new_gotham_daily_nuisance_crime_rate,
+                                  ng_latino_pop,
+                                  365)
+ng_white_nuisance <- generate_crimes(new_gotham_daily_nuisance_crime_rate,
+                                  ng_white_pop,
+                                  365)
+
+crimes <- tibble(type = c(
+  rep("Major", og_black_major + og_latino_major + og_white_major),
+  rep("Nuisance", og_black_nuisance + og_latino_nuisance + og_white_nuisance),
+  rep("Major", ng_black_major + ng_latino_major + ng_white_major),
+  rep("Nuisance", ng_black_nuisance + ng_latino_nuisance + ng_white_nuisance)
+) , 
+race = c(
+  rep("Black", og_black_major),
+  rep("Latino", og_latino_major),
+  rep("White", og_white_major),
+  rep("Black", og_black_nuisance),
+  rep("Latino", og_latino_nuisance),
+  rep("White", og_white_nuisance),
+  rep("Black", ng_black_major),
+  rep("Latino", ng_latino_major),
+  rep("White", ng_white_major),
+  rep("Black", ng_black_nuisance),
+  rep("Latino", ng_latino_nuisance),
+  rep("White", ng_white_nuisance)
+), 
+borough = c(
+  rep("Old Gotham", og_black_major + og_latino_major + og_white_major + og_black_nuisance + og_latino_nuisance + og_white_nuisance),
+  rep("Old Gotham", ng_black_major + ng_latino_major + ng_white_major + ng_black_nuisance + ng_latino_nuisance + ng_white_nuisance)
+))
+```
+
+
+
+```{r}
+generate_arrests <- function(arrest_rate, num_crimes){
+  return(rbinom(num_crimes, arrest_rate))
+}
+
+generate_arrest_probability <- function(num_police, population, race, crime)
+{
+  encounter_multiplier <- population*num_police
+  if(crime == "Major"){
+    return(0.9)
+  }
+  else{
+    if(race == "Black"){
+      arrest_val <- black_arrest_rate_nuisance* encounter_multiplier
+      
+    }
+    else if(race == "Latino"){
+      arrest_val <- latino_arrest_rate_nuisance* encounter_multiplier
+    }
+    else if(race == "White"){
+      arrest_val <- white_arrest_rate_nuisance* encounter_multiplier
+    }
+  }
+  return(arrest_val/(1+arrest_val))
+}
+
+# Old Gotham Major Crimes
+# og_black_major <- generate_arrests(,
+#                                   og_black_pop,
+#                                   365)
+# og_latino_major <- generate_crimes(old_gotham_daily_major_crime_rate,
+#                                   og_latino_pop,
+#                                   365)
+# og_white_major <- generate_crimes(old_gotham_daily_major_crime_rate,
+#                                   og_white_pop,
+#                                   365)
+# 
+# # New Gotham Major Crimes
+# ng_black_major <- generate_crimes(new_gotham_daily_major_crime_rate,
+#                                   ng_black_pop,
+#                                   365)
+# ng_latino_major <- generate_crimes(new_gotham_daily_major_crime_rate,
+#                                   ng_latino_pop,
+#                                   365)
+# ng_white_major <- generate_crimes(new_gotham_daily_major_crime_rate,
+#                                   ng_white_pop,
+#                                   365)
+# 
+# # Old Gotham Nuisance
+# og_black_nuisance <- generate_crimes(old_gotham_daily_nuisance_crime_rate,
+#                                   og_black_pop,
+#                                   365)
+# og_latino_nuisance <- generate_crimes(old_gotham_daily_nuisance_crime_rate,
+#                                   og_latino_pop,
+#                                   365)
+# og_white_nuisance <- generate_crimes(old_gotham_daily_nuisance_crime_rate,
+#                                   og_white_pop,
+#                                   365)
+# 
+# # New Gotham Nuisance
+# ng_black_nuisance <- generate_crimes(new_gotham_daily_nuisance_crime_rate,
+#                                   ng_black_pop,
+#                                   365)
+# ng_latino_nuisance <- generate_crimes(new_gotham_daily_nuisance_crime_rate,
+#                                   ng_latino_pop,
+#                                   365)
+# ng_white_nuisance <- generate_crimes(new_gotham_daily_nuisance_crime_rate,
+#                                   ng_white_pop,
+#                                   365)
+```
