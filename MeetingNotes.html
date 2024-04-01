@@ -11,7 +11,7 @@
 
 
 
-<title>Algorithmic Bias Outline</title>
+<title>Meeting Notes</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -348,181 +348,88 @@ display: none;
 
 
 
-<h1 class="title toc-ignore">Algorithmic Bias Outline</h1>
+<h1 class="title toc-ignore">Meeting Notes</h1>
 
 </div>
 
 
-<div id="introduction" class="section level1">
-<h1>Introduction</h1>
-<p>Batman is sick of the growing level of crime in Gotham. Instead of
-patrolling the city himself, he has decided to devote her considerable
-resources to hiring a team of data scientists. This team of data
-scientists is directed to use the growing database of arrests to develop
-a model predicting where crime will occur. The hope is that Gotham will
-then be able to more efficiently deploy their limited police force. For
-the sake of simplicity, the data science team decides to divide the city
-into its six boroughs: in: Old Gotham, Miagani Island, Founders’ Island,
-Bleake Island, Arkham Island, New Gotham.</p>
-<p>For the sake of simplicity, assume the Gotham devides their crimes
-into two classes. The first class, major crimes, includes most violent
-crimes (e.g. murder and armed robbery), and are likely to be reported
-even if a police officer is not present. The second class is called
-nuisance crimes and includes the type of crimes which are rarely
-reported like drug possession, vagrancy, and public urination.</p>
-<div id="generating-list-of-arrests-not-visible-to-user" class="section level2">
-<h2>Generating List of Arrests (Not visible to user)</h2>
-<p>Let simulate a list of arrests</p>
-<pre class="r"><code>generate_crimes &lt;- function(crime_rate, population, time){
-  return(rpois(1, crime_rate*population*time))
-}
-
-# Old Gotham Major Crimes
-generate_all_crimes &lt;- function(num_days){
-  og_black_major &lt;- generate_crimes(old_gotham_daily_major_crime_rate,
-                                  og_black_pop,
-                                  num_days)
-og_latino_major &lt;- generate_crimes(old_gotham_daily_major_crime_rate,
-                                  og_latino_pop,
-                                  num_days)
-og_white_major &lt;- generate_crimes(old_gotham_daily_major_crime_rate,
-                                  og_white_pop,
-                                  num_days)
-# New Gotham Major Crimes
-ng_black_major &lt;- generate_crimes(new_gotham_daily_major_crime_rate,
-                                  ng_black_pop,
-                                  num_days)
-ng_latino_major &lt;- generate_crimes(new_gotham_daily_major_crime_rate,
-                                  ng_latino_pop,
-                                  num_days)
-ng_white_major &lt;- generate_crimes(new_gotham_daily_major_crime_rate,
-                                  ng_white_pop,
-                                  num_days)
-# Old Gotham Nuisance
-og_black_nuisance &lt;- generate_crimes(old_gotham_daily_nuisance_crime_rate,
-                                  og_black_pop,
-                                  num_days)
-og_latino_nuisance &lt;- generate_crimes(old_gotham_daily_nuisance_crime_rate,
-                                  og_latino_pop,
-                                  num_days)
-og_white_nuisance &lt;- generate_crimes(old_gotham_daily_nuisance_crime_rate,
-                                  og_white_pop,
-                                  num_days)
-
-# New Gotham Nuisance
-ng_black_nuisance &lt;- generate_crimes(new_gotham_daily_nuisance_crime_rate,
-                                  ng_black_pop,
-                                  num_days)
-ng_latino_nuisance &lt;- generate_crimes(new_gotham_daily_nuisance_crime_rate,
-                                  ng_latino_pop,
-                                  num_days)
-ng_white_nuisance &lt;- generate_crimes(new_gotham_daily_nuisance_crime_rate,
-                                  ng_white_pop,
-                                  num_days)
-
-crimes &lt;- tibble(type = c(
-  rep(&quot;Major&quot;, og_black_major + og_latino_major + og_white_major),
-  rep(&quot;Nuisance&quot;, og_black_nuisance + og_latino_nuisance + og_white_nuisance),
-  rep(&quot;Major&quot;, ng_black_major + ng_latino_major + ng_white_major),
-  rep(&quot;Nuisance&quot;, ng_black_nuisance + ng_latino_nuisance + ng_white_nuisance)
-) , 
-race = c(
-  rep(&quot;Black&quot;, og_black_major),
-  rep(&quot;Latino&quot;, og_latino_major),
-  rep(&quot;White&quot;, og_white_major),
-  rep(&quot;Black&quot;, og_black_nuisance),
-  rep(&quot;Latino&quot;, og_latino_nuisance),
-  rep(&quot;White&quot;, og_white_nuisance),
-  rep(&quot;Black&quot;, ng_black_major),
-  rep(&quot;Latino&quot;, ng_latino_major),
-  rep(&quot;White&quot;, ng_white_major),
-  rep(&quot;Black&quot;, ng_black_nuisance),
-  rep(&quot;Latino&quot;, ng_latino_nuisance),
-  rep(&quot;White&quot;, ng_white_nuisance)
-), 
-borough = c(
-  rep(&quot;Old Gotham&quot;, og_black_major + og_latino_major + og_white_major + og_black_nuisance + og_latino_nuisance + og_white_nuisance),
-  rep(&quot;New Gotham&quot;, ng_black_major + ng_latino_major + ng_white_major + ng_black_nuisance + ng_latino_nuisance + ng_white_nuisance)
-))
-
-return(crimes)
-}
-
-
-past_crimes &lt;- generate_all_crimes(365)</code></pre>
-<pre class="r"><code>generate_arrests &lt;- function(arrest_rate, num_crimes){
-  return(rbinom(1, num_crimes, arrest_rate))
-}
-
-generate_arrest_probability &lt;- function(num_police, population, race, crime)
-{
-  encounter_multiplier &lt;- num_police / population
-  if(crime == &quot;Major&quot;){
-    return(0.9)
-  }
-  else{
-    if(race == &quot;Black&quot;){
-      arrest_val &lt;- black_arrest_rate_nuisance * encounter_multiplier
-      
-    }
-    else if(race == &quot;Latino&quot;){
-      arrest_val &lt;- latino_arrest_rate_nuisance * encounter_multiplier
-    }
-    else if(race == &quot;White&quot;){
-      arrest_val &lt;- white_arrest_rate_nuisance * encounter_multiplier
-    }
-  }
-  return(arrest_val/(1+arrest_val))
-}
-
-generate_all_arrests &lt;- function(og_cops, ng_cops, crimes){
-  
-  
-  arrests &lt;- crimes |&gt;
-    rowwise() |&gt;
-    mutate(num_cops = case_when(
-      borough == &quot;Old Gotham&quot; ~ og_cops,
-      borough == &quot;New Gotham&quot; ~ ng_cops
-    ),
-    num_dem = case_when(
-      borough == &quot;Old Gotham&quot; &amp; race == &quot;Black&quot; ~ og_black_pop,
-      borough == &quot;Old Gotham&quot; &amp; race == &quot;Latino&quot; ~ og_latino_pop,
-      borough == &quot;Old Gotham&quot; &amp; race == &quot;White&quot; ~ og_white_pop,
-      borough == &quot;New Gotham&quot; &amp; race == &quot;Black&quot; ~ ng_black_pop,
-      borough == &quot;New Gotham&quot; &amp; race == &quot;Latino&quot; ~ ng_latino_pop,
-      borough == &quot;New Gotham&quot; &amp; race == &quot;White&quot; ~ ng_white_pop
-    ),
-    arrested_prob = generate_arrest_probability(num_cops, num_dem, race, type),
-    arrested = rbinom(1, 1, arrested_prob)
-    ) |&gt;
-    filter(arrested == 1) |&gt;
-    select(type, race, borough)
-  
-  
-  
-  
-  
-  return(arrests)
-}
-
-past_arrests &lt;- generate_all_arrests(og_cops, ng_cops, past_crimes)</code></pre>
+<div id="monday-january-22" class="section level2">
+<h2>Monday, January 22</h2>
+<ul>
+<li><p>discussed our goals and courses (topics, students, etc.)</p></li>
+<li><p>plan to create apps to address ML topics (bias-variance
+trade-off)</p></li>
+<li><p>activities on data ethics (to be discussed later)</p></li>
+<li><p>Abhishek wnated to know about learnR tutorials (to be thought of
+later)</p></li>
+<li><p>activities related to ChatGPT, etc. (to be thought of later),
+Eric referred to Vimal</p></li>
+</ul>
 </div>
-<div id="building-a-simple-model" class="section level2">
-<h2>Building a Simple Model</h2>
-<pre class="r"><code>past_arrests &lt;- past_arrests |&gt;
-  mutate(borough_num = case_when(
-    borough == &quot;Old Gotham&quot; ~ 0,
-    borough == &quot;New Gotham&quot; ~ 1
-  ))
-simple_model &lt;- glm(borough_num ~ NULL, data = past_arrests)
-
-old_prop &lt;- predict(simple_model, newdata = tibble(type = &quot;Major&quot;))</code></pre>
-<p>So 2.3% of crime occurs in Old Gotham. Let’s allocate 2.3% of police
-to that neighborhood.</p>
-<pre class="r"><code>og_cops &lt;- round(total_police * old_prop)
-ng_cops &lt;- total_police - og_cops</code></pre>
-<p>Let’s see how we perform over the next year:</p>
+<div id="monday-january-29" class="section level2">
+<h2>Monday, January 29</h2>
+<ul>
+<li><p>created GitHub repo</p></li>
+<li><p>discuss basic version of a couple of apps</p></li>
+<li><p>HAVE TO FIX the scale on flexibility</p></li>
+<li><p>discuss more such apps to address the concept of variance using
+multiple training datasets (compare linear models with LASSO, splines,
+etc. using boxplot of parameter estimates, with multiple
+scatterplots?)</p></li>
+</ul>
 </div>
+<div id="monday-february-12" class="section level2">
+<h2>Monday, February 12</h2>
+<ul>
+<li><p>scale on flexibility FIXED (on <code>Flex.R</code>)</p></li>
+<li><p>created a new app demonstrating bias and variance
+(<code>Bias_Variance.R</code>)</p></li>
+<li><p>PLANS: demonstrate KNN and single Decision Trees, Eric mentioned
+adding histograms of residuals, and add LASSO and ridge boxplots of
+parameter estimates</p></li>
+<li><p>two students might be working with Abhishek on these apps during
+Spring term</p></li>
+<li><p>idea about developing lesson plans associated with the apps
+(discussed in THIRD FLC meeting, see Google Drive folder)</p></li>
+<li><p>plan to have the apps ready before next Winter term</p></li>
+<li><p>will meet next week</p></li>
+</ul>
+</div>
+<div id="monday-february-19" class="section level2">
+<h2>Monday, February 19</h2>
+<ul>
+<li><p>Abhishek did not have time to work on the apps</p></li>
+<li><p>Eric updated the bias-variance app with histograms (at a
+different branch)</p></li>
+<li><p>We discussed of possible variations - hollow histograms, density
+plots, etc. (TO DO)</p></li>
+<li><p>We talked about <code>Default</code> dataset from Intro to Stat
+Learning with R (James et al.) for first version of algorithmic bias
+study</p></li>
+<li><p>We talked about similar apps for Stat 2 level course developed by
+Keegan Kang (last FLC meeting)</p></li>
+<li><p>Found a similar app which can be used for reference (check
+assoicated article, and apps)
+[gursimar.github.io/d3-visualizations/bias-var/]</p></li>
+<li><p>TO DO for Eric</p>
+<ul>
+<li><p>Put ML activities in GitHub folder and send to Abhishek</p></li>
+<li><p>Reach out to Colby at Wooster</p></li>
+<li><p>Frame an idea of algorithmic bias</p></li>
+</ul></li>
+<li><p>TO DO for Abhishek</p>
+<ul>
+<li>work on apps for KNN and trees</li>
+</ul></li>
+</ul>
+</div>
+<div id="monday-february-26" class="section level2">
+<h2>Monday, February 26</h2>
+<ul>
+<li><p>Busy week/weekend for both of us, none of us could make any
+progress</p></li>
+<li><p>Will work on the TO DO lists from last meeting</p></li>
+</ul>
 </div>
 
 
