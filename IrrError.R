@@ -17,7 +17,7 @@ ui <- fluidPage(
 
     column(3,
            sliderInput(inputId = "epsilon",
-                       label = "Select variability",
+                       label = "Select error variability",
                        min = 0,
                        max = 10,
                        value = 1,
@@ -83,7 +83,7 @@ server <- function(input, output) {
   output$truePlot <- renderPlot({
     
     ggplot(data = df(), aes(x = inp, y = true_form)) + 
-      geom_point() + labs(title = "True relationship without error", y = "f(x)", x = "x")
+      geom_point() + labs(title = "True (unknown) relationship without error", y = "f(x)", x = "x")
     
   })
   

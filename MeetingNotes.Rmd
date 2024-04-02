@@ -105,4 +105,28 @@ knitr::opts_chunk$set(echo = TRUE)
 - next meeting in two weeks
 
 
+## Tuesday, March 26
+
+- our meetings have been rescheduled to Tuesday due to Abhishek's class prep on Mondays
+
+- Eric discussed his ideas/outlines for the app on algorithmic bias, currently working on the data generation process
+
+- Abhishek shared Shonda's app/activity on a similar topic (https://dataspace.sites.grinnell.edu/nypd1.html)
+
+
+
+## Tuesday, April 2
+
+- We discussed some of Eric's questions on the probability generating model for arrests, maybe a logistic regression (S-shaped) with interaction terms would work, Eric was initially thinking of probability depending on x (through x/(1+x)) where x depends on the variables
+
+- Abhishek shared a couple of blog posts on Fair ML strategies (although they employ the `tidymodels` framework)
+
+- Abhishek plans to work with his LU students in the coming weeks on the Bias-Variance app
+
+
+
+
+
+
+
 
