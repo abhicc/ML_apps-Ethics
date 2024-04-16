@@ -21,6 +21,8 @@ new_gotham_daily_major_crime_rate <- 25/100000/365
 old_gotham_daily_nuisance_crime_rate <- 1000/100000/365
 new_gotham_daily_nuisance_crime_rate <- 500/100000/365
 
+major_crime_multiplier <- 1000
+
 generate_crimes <- function(crime_rate, population, time){
   return(rpois(1, lambda = crime_rate*population*time))
 }
@@ -109,11 +111,11 @@ generate_arrests <- function(arrest_prop, num_crimes){
   return(rbinom(1, num_crimes, arrest_prob))
 }
 
-generate_arrest_probability <- function(num_police, num_crimes, dem_size, bor_size, race, crime)
+generate_arrest_probability <- function(num_police, num_crimes, bor_size, race, crime)
 {
-  encounter_multiplier <- num_police * num_crimes/ population^2
+  encounter_multiplier <- 100 * num_police * num_crimes / bor_size^2
   if(crime == "Major"){
-    arrest_val <- encounter_multiplier
+    arrest_val <- major_crime_multiplier*encounter_multiplier
   }
   else{
     if(race == "Black"){
@@ -126,7 +128,7 @@ generate_arrest_probability <- function(num_police, num_crimes, dem_size, bor_si
       arrest_val <- white_arrest_rate_nuisance * encounter_multiplier
     }
   }
-  return(exp(arrest_val)/(1+exp(arrest_val)))
+  return(arrest_val/(1+arrest_val))
 }
 
 generate_all_arrests <- function(og_cops, ng_cops, crimes){
@@ -151,9 +153,9 @@ generate_all_arrests <- function(og_cops, ng_cops, crimes){
     ungroup() |>
     rowwise() |>
     mutate(arrested_prob = generate_arrest_probability(num_cops, num_crimes, num_dem, race, type),
-    arrested = rbinom(1, 1, arrested_prob))
-    # filter(arrested == 1) |>
-    # select(type, race, borough)
+    arrested = rbinom(1, 1, arrested_prob)) |>
+    filter(arrested == 1) |>
+    select(type, race, borough)
   
   
   
