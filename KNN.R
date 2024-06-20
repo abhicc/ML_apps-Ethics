@@ -11,32 +11,32 @@ ui <- fluidPage(
     sidebarPanel(
     
     # column(3,
-           selectInput(inputId = "true_model",
-                       label = "Select a 'true' model",
-                       choices = c("Linear", "Non-linear"),
-                       selected = "Linear"),
+           # selectInput(inputId = "true_model",
+           #             label = "Select a 'true' model",
+           #             choices = c("Linear", "Non-linear"),
+           #             selected = "Linear"),
     
     # column(3,
-           sliderInput(inputId = "epsilon",
-                       label = "Select variability:",
-                       min = 0,
-                       max = 5,
-                       value = 1,
-                       step = 0.5),
-    
+           # sliderInput(inputId = "epsilon",
+           #             label = "Select variability:",
+           #             min = 0,
+           #             max = 5,
+           #             value = 1,
+           #             step = 0.5),
+           # 
     # column(3,
            sliderInput(inputId = "k",
                        label = "Select a value of K:",
                        min = 1,
-                       max = 50,
+                       max = 97,
                        value = 10,
                        step = 1,
-                       animate = TRUE),
+                       animate = TRUE)),
     
     # column(3, 
-           plotOutput("myLegend"))
+           # plotOutput("myLegend"))
     
-  ,
+  
   
   mainPanel(
     # column(4, 
@@ -49,110 +49,56 @@ ui <- fluidPage(
 
 server <- function(input, output) {
   
-  
-  a <- 3
-  b <- 0.87
-  c <- 0.5
-  
-  df <- reactive({
-    
-    if(input$true_model == "Linear")
-    {
-      set.seed(208)
-      
-      # simulate data
-      x <- runif(n = 50, min = 20, max = 40)   # input/predictor
-      
-      e <- rnorm(n = 50, mean = 0, sd = input$epsilon)  # error
-      
-      fx <- a + (b * x)  # true function
-      
-      y <- fx + e    # observed responses
-      
-      toy_data <- data.frame(inp = x, true_form = fx, response = y)  
-    }
-    
-    else 
-    {
-      set.seed(208)
-      
-      # simulate data
-      x <- runif(n = 50, min = 20, max = 40)   # input/predictor
-      
-      e <- rnorm(n = 50, mean = 0, sd = input$epsilon)  # error
-      
-      fx <- a + (b * sqrt(x)) + (c * sin(x))   # true function
-      
-      y <- fx + e    # observed responses
-      
-      toy_data <- data.frame(inp = x, true_form = fx, response = y)  
-    }
-    
-    return(toy_data)
-  })
-  
-  
-  # output$truePlot <- renderPlot({
-  #   
-  #   ggplot(data = df(), aes(x = inp, y = true_form)) + 
-  #     geom_point() + 
-  #     labs(title = "True relationship without error", y = "f(x)", x = "x") +
-  #     ylim(c(min(df()$response), max(df()$response)))
-  #   
-  # })
-  # 
-  
-  
   output$observedPlot <- renderPlot({
     
-    if(input$true_model == "Linear")
-    {
-      knnfit <- knnreg(response ~ inp, data = df(), k = input$k)   # KNN regression
-      knn_preds <- predict(knnfit, newdata = data.frame(inp = seq(min(df()$inp, na.rm = TRUE), max(df()$inp, na.rm = TRUE), 0.001)))   # predictions
-      knn_df <- data.frame(x = seq(min(df()$inp, na.rm = TRUE), max(df()$inp, na.rm = TRUE), 0.001), preds = knn_preds)
-      
-      ggplot(data = df(), aes(x = inp, y = response)) + 
-        geom_point() +
-        geom_function(fun = function(x) a+(b*x), aes(color = "true model"), linewidth = 1.5, show.legend = FALSE) +
-        geom_smooth(method = "lm", se = FALSE, aes(color = "linear model"), show.legend = FALSE) +
-        # geom_smooth(formula = y ~ sqrt(x) + sin(x), se = FALSE, aes(color = "non-linear model")) +
-        geom_line(data = knn_df, aes(x = x, y = preds, color = "KNN fit"), linewidth = 1, show.legend = FALSE) +
-        # geom_smooth(span = 1/input$flex, se = FALSE, aes(color = "non-linear model")) +
-        scale_color_manual(values = c("true model" = "red", "linear model" = "blue", "KNN fit" = "cyan")) +
-        # theme(legend.title = element_blank()) +
-        labs(title = "Comparing KNN fits", y = "y", x = "x")
-    }
+    outlets <- readRDS("outlets.rds")   # load dataset
     
-    else
-    {
-      knnfit <- knnreg(response ~ inp, data = df(), k = input$k)   # KNN regression
-      knn_preds <- predict(knnfit, newdata = data.frame(inp = seq(min(df()$inp, na.rm = TRUE), max(df()$inp, na.rm = TRUE), 0.001)))   # predictions
-      knn_df <- data.frame(x = seq(min(df()$inp, na.rm = TRUE), max(df()$inp, na.rm = TRUE), 0.001), preds = knn_preds)
-      
-      ggplot(data = df(), aes(x = inp, y = response)) + 
-        geom_point() +
-        geom_function(fun = function(x) a+(b*sqrt(x))+(c*sin(x)), aes(color = "true model"), linewidth = 1.5, show.legend = FALSE) +
-        geom_smooth(method = "lm", se = FALSE, aes(color = "linear model"), show.legend = FALSE) +
-        # geom_smooth(formula = y ~ sqrt(x) + sin(x), se = FALSE, aes(color = "non-linear model")) +
-        geom_line(data = knn_df, aes(x = x, y = preds, color = "KNN fit"), linewidth = 1, show.legend = FALSE) +
-        # geom_smooth(span = 1/input$flex, se = FALSE, aes(color = "non-linear model")) +
-        scale_color_manual(values = c("true model" = "red", "linear model" = "blue", "KNN fit" = "cyan")) +
-        # theme(legend.title = element_blank()) +
-        labs(title = "Comparing KNN fits", y = "y", x = "x")
-      
-    }
+    kval <- as.numeric(input$k)
     
+    knnfit <- knnreg(profit ~ population, data = outlets, k = kval)
+    
+    # predict(object = __________, newdata = data.frame(population = __________))  # 1-nn prediction
+    # 
+    # slrfit <- lm(profit ~ population, data = outlets)   # fit the SLR model
+    
+    pop_seq <- seq(min(outlets$population, na.rm = TRUE), max(outlets$population, na.rm = TRUE), 0.01)
+    
+    # obtain predictions for all training data points
+    # knn_1 <- predict(knnfit1, newdata = data.frame(population = min(outlets$population, na.rm = TRUE):max(outlets$population, na.rm = TRUE)))
+    # knn_1 <- predict(knnfit1, newdata = data.frame(population = pop_seq))
+    preds <- predict(knnfit, newdata = data.frame(population = pop_seq))
+    # knn_5 <- predict(knnfit5, newdata = data.frame(population = min(outlets$population, na.rm = TRUE):max(outlets$population, na.rm = TRUE)))
+    # knn_5 <- predict(knnfit5, newdata = data.frame(population = pop_seq))
+    # p <-  predict(slrfit, newdata = data.frame(population = min(outlets$population, na.rm = TRUE):max(outlets$population, na.rm = TRUE)))
+    # p <-  predict(slrfit, newdata = data.frame(population = pop_seq))
+    
+    # column bind original data with predicted values
+    # ames1 <- outlets %>% select(profit, population) %>% filter(!is.na(population))
+    # predictions <- data.frame(population = min(outlets$population, na.rm = TRUE):max(outlets$population, na.rm = TRUE),
+    # linear = p, knn_1, knn_5)
+    # predictions <- data.frame(population = pop_seq,
+                              # linear = p, knn_1, knn_5)
+    predictions <- data.frame(population = pop_seq, predictions = preds)
+    
+    # plot the three models
+    # ggplot(data = outlets, aes(x = population, y = profit)) +
+    #   geom_point() +
+    #   geom_line(data = predictions, aes(x = population, y = knn_1), color = "cyan", linetype = "dashed", linewidth = 1) +   # 1-nn regression
+    #   geom_line(data = predictions, aes(x = population, y = knn_5), color = "red", linetype = "dotted", linewidth = 1) +   # 5-nn regression
+    #   geom_line(data = predictions, aes(x = population, y = linear), color = "blue", linewidth = 1) +
+    #   theme_bw()
+    
+    ggplot(data = outlets, aes(x = population, y = profit)) +
+      geom_point() +
+      geom_line(data = predictions, aes(x = population, y = predictions), color = "red", linetype = "dashed", linewidth = 1) +   # 1-nn regression
+      # geom_line(data = predictions, aes(x = population, y = knn_5), color = "red", linetype = "dotted", linewidth = 1) +   # 5-nn regression
+      geom_smooth(method = "lm", se = FALSE, color = "blue") +
+      theme_bw()
     
   })
   
   
-  output$myLegend <- renderPlot({
-    par(mai=rep(0.01,4))
-    # plot(NULL ,xaxt='n',yaxt='n',bty='n',ylab='',xlab='', xlim=c(0,.1), ylim=c(0,.1))
-    legend("center", legend=c("true model","linear model", "KNN fit"), lty=c(1,1,1), lwd=c(4,4,4), col=c("red", "darkblue", "cyan"))
-  },height=50)
-  
-  
+
   
   
 }
